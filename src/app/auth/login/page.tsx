@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { QrCode, Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Eye, EyeOff, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { login, signInWithGoogle } from "../actions";
 import { SITE_NAME } from "@/lib/site";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
@@ -42,9 +43,7 @@ export default function LoginPage() {
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-8">
                     <Link href="/" className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
-                            <QrCode className="w-5 h-5 text-white" />
-                        </div>
+                        <BrandLogo className="h-10 w-10 rounded-xl" priority />
                         <span className="text-xl font-bold text-slate-900 dark:text-white">{SITE_NAME}</span>
                     </Link>
                 </div>

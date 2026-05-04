@@ -1,6 +1,6 @@
-'use server';
+"use server";
 
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from "@/lib/supabase/server";
 
 export interface RestaurantMenuData {
     restaurant: {
@@ -9,6 +9,8 @@ export interface RestaurantMenuData {
         description: string | null;
         slug: string;
         logo_url: string | null;
+        phone: string | null;
+        address: string | null;
         theme_color?: string | null;
     };
     categories: {
@@ -26,22 +28,23 @@ export interface RestaurantMenuData {
     }[];
 }
 
-export async function getRestaurantMenuBySlug(slug: string): Promise<{ data: RestaurantMenuData | null; error: string | null }> {
+export async function getRestaurantMenuBySlug(
+    slug: string
+): Promise<{ data: RestaurantMenuData | null; error: string | null }> {
     const supabase = await createClient();
 
     const { data: restaurant, error: restaurantError } = await supabase
-        .from('restaurants')
-        .select('id, name, description, slug, logo_url')
-        .eq('slug', slug)
+        .from("restaurants")
+        .select("id, name, description, slug, logo_url, phone, address")
+        .eq("slug", slug)
         .single();
 
     if (restaurantError || !restaurant) {
-        return { data: null, error: 'Restoran bulunamadı' };
+        return { data: null, error: "Restoran bulunamadı" };
     }
 
-    // Get categories with products
     const { data: categories, error: categoriesError } = await supabase
-        .from('categories')
+        .from("categories")
         .select(`
             id,
             name,
@@ -55,11 +58,11 @@ export async function getRestaurantMenuBySlug(slug: string): Promise<{ data: Res
                 sort_order
             )
         `)
-        .eq('restaurant_id', restaurant.id)
-        .order('sort_order', { ascending: true });
+        .eq("restaurant_id", restaurant.id)
+        .order("sort_order", { ascending: true });
 
     if (categoriesError) {
-        return { data: null, error: 'Kategoriler yüklenemedi' };
+        return { data: null, error: "Kategoriler yüklenemedi" };
     }
 
     return {
@@ -72,29 +75,27 @@ export async function getRestaurantMenuBySlug(slug: string): Promise<{ data: Res
                 ),
             })),
         },
-        error: null
+        error: null,
     };
 }
 
 export async function incrementRestaurantView(restaurantId: string) {
     const supabase = await createClient();
 
-    // First try RPC for atomicity
-    const { error: rpcError } = await supabase.rpc('increment_restaurant_view', { restaurant_id: restaurantId });
+    const { error: rpcError } = await supabase.rpc("increment_restaurant_view", { restaurant_id: restaurantId });
 
     if (!rpcError) return;
 
-    // Fallback to select + update if RPC doesn't exist
     const { data } = await supabase
-        .from('restaurants')
-        .select('view_count')
-        .eq('id', restaurantId)
+        .from("restaurants")
+        .select("view_count")
+        .eq("id", restaurantId)
         .single();
 
     if (data) {
         await supabase
-            .from('restaurants')
+            .from("restaurants")
             .update({ view_count: (data.view_count || 0) + 1 })
-            .eq('id', restaurantId);
+            .eq("id", restaurantId);
     }
 }

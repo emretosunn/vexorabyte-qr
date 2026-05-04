@@ -1,38 +1,59 @@
 "use client";
-// Touched to fix import error
 
-import { useState, useEffect, useRef } from "react";
-import { Search, MapPin, Phone, Clock, ChevronDown, X, ShoppingBag, Star } from "lucide-react";
-import { type RestaurantMenuData, incrementRestaurantView } from "./actions";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+    ChevronRight,
+    Clock3,
+    MapPin,
+    PackageOpen,
+    Phone,
+    Search,
+    ShoppingBag,
+    Sparkles,
+    Star,
+    X,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { SITE_NAME } from "@/lib/site";
+import { incrementRestaurantView, type RestaurantMenuData } from "./actions";
+
+const DEFAULT_PRODUCT_IMAGE_URL = "/defaults/menu-item.svg";
 
 interface MenuPageProps {
     data: RestaurantMenuData;
 }
 
-const DEFAULT_PRODUCT_IMAGE_URL = "/defaults/menu-item.svg";
+type MenuProduct = RestaurantMenuData["categories"][number]["products"][number];
 
 export function MenuClient({ data }: MenuPageProps) {
     const { restaurant, categories } = data;
     const supabaseRef = useRef(createClient());
     const [restaurantState, setRestaurantState] = useState(restaurant);
     const [categoriesState, setCategoriesState] = useState(categories);
-    const [activeCategory, setActiveCategory] = useState<string | null>(
-        categories[0]?.id || null
-    );
+    const [activeCategory, setActiveCategory] = useState<string | null>(categories[0]?.id || null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedProduct, setSelectedProduct] = useState<{
-        id: string;
-        name: string;
-        description: string | null;
-        price: number;
-        image_url: string | null;
-    } | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<MenuProduct | null>(null);
     const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
-
-    // Increment view count on mount
     const viewIncremented = useRef(false);
+
+    const themeColor = restaurantState.theme_color || "#f97316";
+    const totalProducts = categoriesState.reduce((acc, category) => acc + category.products.length, 0);
+    const filteredCategories = useMemo(
+        () =>
+            categoriesState
+                .map((category) => ({
+                    ...category,
+                    products: category.products.filter(
+                        (product) =>
+                            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            product.description?.toLowerCase().includes(searchTerm.toLowerCase())
+                    ),
+                }))
+                .filter((category) => category.products.length > 0 || !searchTerm),
+        [categoriesState, searchTerm]
+    );
+    const filteredProductsCount = filteredCategories.reduce((acc, category) => acc + category.products.length, 0);
+
     useEffect(() => {
         if (!viewIncremented.current) {
             incrementRestaurantView(restaurant.id);
@@ -40,28 +61,13 @@ export function MenuClient({ data }: MenuPageProps) {
         }
     }, [restaurant.id]);
 
-    // Theme color from restaurant or default
-    const themeColor = restaurantState.theme_color || "#f97316";
-
-    // Filter products by search
-    const filteredCategories = categoriesState.map(cat => ({
-        ...cat,
-        products: cat.products.filter(p =>
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            p.description?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-    })).filter(cat => cat.products.length > 0 || !searchTerm);
-
-    // Get all products count
-    const totalProducts = categoriesState.reduce((acc, cat) => acc + cat.products.length, 0);
-
     useEffect(() => {
         if (searchTerm) return;
         const categoryIds = categoriesState.map((category) => category.id);
         if (categoryIds.length === 0) return;
 
         const onScroll = () => {
-            const offset = 160;
+            const offset = 132;
             let currentId = categoryIds[0];
 
             for (const id of categoryIds) {
@@ -84,15 +90,16 @@ export function MenuClient({ data }: MenuPageProps) {
 
     useEffect(() => {
         let isMounted = true;
+        const supabase = supabaseRef.current;
 
         const refreshMenu = async () => {
             const [{ data: latestRestaurant }, { data: latestCategories }] = await Promise.all([
-                supabaseRef.current
+                supabase
                     .from("restaurants")
-                    .select("id, name, description, slug, logo_url")
+                    .select("id, name, description, slug, logo_url, phone, address")
                     .eq("id", restaurant.id)
                     .maybeSingle(),
-                supabaseRef.current
+                supabase
                     .from("categories")
                     .select(`
                         id,
@@ -128,7 +135,7 @@ export function MenuClient({ data }: MenuPageProps) {
             }
         };
 
-        const channel = supabaseRef.current
+        const channel = supabase
             .channel(`restaurant-menu-${restaurant.id}`)
             .on("postgres_changes", { event: "*", schema: "public", table: "restaurants", filter: `id=eq.${restaurant.id}` }, refreshMenu)
             .on("postgres_changes", { event: "*", schema: "public", table: "categories", filter: `restaurant_id=eq.${restaurant.id}` }, refreshMenu)
@@ -137,7 +144,7 @@ export function MenuClient({ data }: MenuPageProps) {
 
         return () => {
             isMounted = false;
-            supabaseRef.current.removeChannel(channel);
+            supabase.removeChannel(channel);
         };
     }, [restaurant.id]);
 
@@ -146,321 +153,360 @@ export function MenuClient({ data }: MenuPageProps) {
         const section = sectionRefs.current[categoryId];
         if (!section) return;
 
-        const y = section.getBoundingClientRect().top + window.scrollY - 130;
+        const y = section.getBoundingClientRect().top + window.scrollY - 118;
         window.scrollTo({ top: y, behavior: "smooth" });
     }
 
+    function formatPrice(value: number) {
+        return new Intl.NumberFormat("tr-TR", {
+            style: "currency",
+            currency: "TRY",
+            maximumFractionDigits: 2,
+        }).format(Number(value || 0));
+    }
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-[#0a0a0f] dark:to-[#12121a]">
-            {/* Hero Header */}
-            <header
-                className="relative overflow-hidden"
-                style={{
-                    background: `linear-gradient(135deg, ${themeColor}20 0%, ${themeColor}05 100%)`
-                }}
-            >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-5">
-                    <div className="absolute inset-0" style={{
-                        backgroundImage: `radial-gradient(circle at 2px 2px, ${themeColor} 1px, transparent 0)`,
-                        backgroundSize: '32px 32px'
-                    }} />
-                </div>
+        <div className="min-h-screen bg-[#f6f7f9] text-slate-950">
+            <header className="relative overflow-hidden bg-white">
+                <div
+                    className="absolute inset-0 opacity-90"
+                    style={{
+                        background: `radial-gradient(circle at 24% 8%, ${themeColor}24, transparent 30%), linear-gradient(135deg, ${themeColor}18 0%, #ffffff 48%, #f8fafc 100%)`,
+                    }}
+                />
+                <div
+                    className="absolute inset-0 opacity-[0.08]"
+                    style={{
+                        backgroundImage: `radial-gradient(circle at 1px 1px, ${themeColor} 1px, transparent 0)`,
+                        backgroundSize: "26px 26px",
+                    }}
+                />
 
-                <div className="relative max-w-4xl mx-auto px-4 py-8 sm:py-12">
-                    {/* Logo & Restaurant Info */}
-                    <div className="flex flex-col items-center text-center">
-                        {restaurantState.logo_url ? (
-                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shadow-lg mb-4 ring-4 ring-white/50 dark:ring-white/10">
-                                <img
-                                    src={restaurantState.logo_url}
-                                    alt={restaurantState.name}
-                                    className="w-full h-full object-cover"
-                                />
+                <div className="relative mx-auto max-w-5xl px-4 pb-7 pt-7 sm:px-6 sm:pb-10 sm:pt-10">
+                    <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                        <div className="flex items-center gap-4 md:items-end">
+                            <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-[1.6rem] bg-white shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/5 sm:h-24 sm:w-24">
+                                {restaurantState.logo_url ? (
+                                    <div
+                                        className="h-full w-full bg-cover bg-center"
+                                        style={{ backgroundImage: `url("${restaurantState.logo_url}")` }}
+                                        aria-label={restaurantState.name}
+                                    />
+                                ) : (
+                                    <div
+                                        className="grid h-full w-full place-items-center text-3xl font-black text-white sm:text-4xl"
+                                        style={{ backgroundColor: themeColor }}
+                                    >
+                                        {restaurantState.name.charAt(0).toLocaleUpperCase("tr-TR")}
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <div
-                                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-lg mb-4 flex items-center justify-center text-white text-3xl font-bold"
-                                style={{ backgroundColor: themeColor }}
-                            >
-                                {restaurantState.name.charAt(0)}
+
+                            <div className="min-w-0">
+                                <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1 text-xs font-black text-slate-600 shadow-sm ring-1 ring-slate-900/5">
+                                    <Sparkles className="h-3.5 w-3.5" style={{ color: themeColor }} />
+                                    Dijital menü
+                                </div>
+                                <h1 className="truncate text-3xl font-black tracking-normal text-slate-950 sm:text-5xl">
+                                    {restaurantState.name}
+                                </h1>
+                                {restaurantState.description && (
+                                    <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+                                        {restaurantState.description}
+                                    </p>
+                                )}
                             </div>
-                        )}
+                        </div>
 
-                        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-2">
-                            {restaurantState.name}
-                        </h1>
-
-                        {restaurantState.description && (
-                            <p className="text-slate-600 dark:text-white/60 text-sm sm:text-base max-w-md">
-                                {restaurantState.description}
-                            </p>
-                        )}
-
-                        {/* Stats */}
-                        <div className="flex items-center gap-4 mt-4 text-sm text-slate-500 dark:text-white/40">
-                            <span className="flex items-center gap-1.5">
-                                <ShoppingBag className="w-4 h-4" />
-                                {totalProducts} Ürün
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                                {categories.length} Kategori
-                            </span>
+                        <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+                            <InfoPill icon={ShoppingBag} label={`${totalProducts} ürün`} />
+                            <InfoPill icon={Star} label={`${categoriesState.length} kategori`} />
+                            {restaurantState.phone && <InfoPill icon={Phone} label="Telefon" href={`tel:${restaurantState.phone}`} />}
+                            {restaurantState.address && <InfoPill icon={MapPin} label="Adres var" />}
                         </div>
                     </div>
 
-                    {/* Search Bar */}
-                    <div className="mt-6 max-w-md mx-auto">
+                    <div className="mt-7 grid gap-3 md:grid-cols-[1fr_auto] md:items-center">
                         <div className="relative">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
                             <input
                                 type="text"
-                                placeholder="Menüde ara..."
+                                placeholder="Menüde ürün veya açıklama ara..."
                                 value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-4 py-3.5 rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 shadow-sm"
-                                style={{ '--tw-ring-color': `${themeColor}40` } as React.CSSProperties}
+                                onChange={(event) => setSearchTerm(event.target.value)}
+                                className="h-14 w-full rounded-2xl border border-slate-200 bg-white pl-12 pr-12 text-base font-semibold text-slate-900 shadow-xl shadow-slate-900/5 outline-none transition-all placeholder:text-slate-400 focus:border-orange-300 focus:ring-4 focus:ring-orange-500/10"
                             />
                             {searchTerm && (
                                 <button
+                                    type="button"
                                     onClick={() => setSearchTerm("")}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-slate-100 dark:hover:bg-white/10"
+                                    className="absolute right-3 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-xl bg-slate-100 text-slate-400"
+                                    aria-label="Aramayı temizle"
                                 >
-                                    <X className="w-4 h-4 text-slate-400" />
+                                    <X className="h-4 w-4" />
                                 </button>
                             )}
+                        </div>
+                        <div className="hidden rounded-2xl bg-white/80 px-4 py-3 text-sm font-bold text-slate-500 shadow-sm ring-1 ring-slate-900/5 md:block">
+                            <Clock3 className="mr-2 inline h-4 w-4" />
+                            Anlık güncel
                         </div>
                     </div>
                 </div>
             </header>
 
-            {/* Category Tabs */}
             {categoriesState.length > 0 && !searchTerm && (
-                <div className="sticky top-0 z-20 bg-white/80 dark:bg-[#12121a]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
-                    <div className="max-w-4xl mx-auto px-4">
-                        <div className="flex gap-1 py-3 overflow-x-auto scrollbar-hide">
+                <nav className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
+                    <div className="mx-auto max-w-5xl px-4 sm:px-6">
+                        <div className="flex gap-2 overflow-x-auto py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                             {categoriesState.map((category) => (
                                 <button
                                     key={category.id}
+                                    type="button"
                                     onClick={() => scrollToCategory(category.id)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${activeCategory === category.id
-                                        ? 'text-white shadow-lg'
-                                        : 'text-slate-600 dark:text-white/60 hover:bg-slate-100 dark:hover:bg-white/5'
-                                        }`}
+                                    className={`shrink-0 rounded-2xl px-4 py-2.5 text-sm font-black transition-all ${
+                                        activeCategory === category.id
+                                            ? "text-white shadow-lg shadow-orange-500/20"
+                                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                    }`}
                                     style={activeCategory === category.id ? { backgroundColor: themeColor } : {}}
                                 >
                                     {category.name}
-                                    <span className="ml-1.5 text-xs opacity-70">
-                                        ({category.products.length})
-                                    </span>
+                                    <span className="ml-1.5 opacity-70">{category.products.length}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
-                </div>
+                </nav>
             )}
 
-            {/* Menu Content */}
-            <main className="max-w-4xl mx-auto px-4 py-6 pb-24">
+            <main className="mx-auto max-w-5xl px-4 py-6 pb-28 sm:px-6 sm:py-8">
                 {searchTerm ? (
-                    // Search Results
                     <div className="space-y-6">
-                        <p className="text-sm text-slate-500 dark:text-white/40">
-                            &quot;{searchTerm}&quot; için {filteredCategories.reduce((acc, cat) => acc + cat.products.length, 0)} sonuç
-                        </p>
+                        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                            <p className="text-sm font-bold text-slate-500">
+                                “{searchTerm}” için {filteredProductsCount} sonuç
+                            </p>
+                        </div>
                         {filteredCategories.map((category) => (
-                            <div key={category.id}>
-                                <h3 className="text-sm font-semibold text-slate-500 dark:text-white/40 uppercase tracking-wider mb-3">
-                                    {category.name}
-                                </h3>
-                                <div className="grid gap-3">
-                                    {category.products.map((product) => (
-                                        <ProductCard
-                                            key={product.id}
-                                            product={product}
-                                            themeColor={themeColor}
-                                            onClick={() => setSelectedProduct(product)}
-                                        />
-                                    ))}
-                                </div>
-                            </div>
+                            <CategorySection
+                                key={category.id}
+                                category={category}
+                                themeColor={themeColor}
+                                formatPrice={formatPrice}
+                                onSelectProduct={setSelectedProduct}
+                            />
                         ))}
+                        {filteredProductsCount === 0 && <EmptyState title="Sonuç bulunamadı" text="Farklı bir ürün adı veya açıklama kelimesi deneyin." />}
                     </div>
-                ) : (
-                    // Category View (all categories visible)
+                ) : categoriesState.length > 0 ? (
                     <div className="space-y-8">
                         {categoriesState.map((category) => (
                             <div
                                 key={category.id}
-                                ref={(el) => {
-                                    sectionRefs.current[category.id] = el;
+                                ref={(element) => {
+                                    sectionRefs.current[category.id] = element;
                                 }}
-                                id={`category-${category.id}`}
-                                className="scroll-mt-32"
+                                className="scroll-mt-28"
                             >
-                                <div className="flex items-center gap-3 mb-4">
-                                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                                        {category.name}
-                                    </h2>
-                                    <span className="text-sm text-slate-400 dark:text-white/30">
-                                        {category.products.length} ürün
-                                    </span>
-                                </div>
-
-                                {category.products.length > 0 ? (
-                                    <div className="grid gap-3">
-                                        {category.products.map((product) => (
-                                            <ProductCard
-                                                key={product.id}
-                                                product={product}
-                                                themeColor={themeColor}
-                                                onClick={() => setSelectedProduct(product)}
-                                            />
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <ShoppingBag className="w-12 h-12 mx-auto text-slate-300 dark:text-white/10 mb-3" />
-                                        <p className="text-slate-500 dark:text-white/40">
-                                            Bu kategoride henüz ürün yok
-                                        </p>
-                                    </div>
-                                )}
+                                <CategorySection
+                                    category={category}
+                                    themeColor={themeColor}
+                                    formatPrice={formatPrice}
+                                    onSelectProduct={setSelectedProduct}
+                                />
                             </div>
                         ))}
                     </div>
-                )}
-
-                {/* Empty State */}
-                {categoriesState.length === 0 && (
-                    <div className="text-center py-16">
-                        <ShoppingBag className="w-16 h-16 mx-auto text-slate-300 dark:text-white/10 mb-4" />
-                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">
-                            Menü Hazırlanıyor
-                        </h3>
-                        <p className="text-slate-500 dark:text-white/40">
-                            Bu restoranın menüsü henüz eklenmemiş
-                        </p>
-                    </div>
+                ) : (
+                    <EmptyState title="Menü hazırlanıyor" text="Bu işletme henüz kategori ve ürün eklememiş." />
                 )}
             </main>
 
-            {/* Product Detail Modal */}
             {selectedProduct && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        onClick={() => setSelectedProduct(null)}
-                    />
-                    <div className="relative w-full sm:max-w-lg bg-white dark:bg-[#18181f] rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[85vh] overflow-hidden">
-                        {/* Product Image */}
-                        {(selectedProduct.image_url || DEFAULT_PRODUCT_IMAGE_URL) && (
-                            <div className="aspect-video bg-slate-100 dark:bg-white/5">
-                                <img
-                                    src={selectedProduct.image_url || DEFAULT_PRODUCT_IMAGE_URL}
-                                    alt={selectedProduct.name}
-                                    className="w-full h-full object-cover"
-                                />
-                            </div>
-                        )}
-
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setSelectedProduct(null)}
-                            className="absolute top-4 right-4 p-2 rounded-full bg-white/90 dark:bg-black/50 text-slate-600 dark:text-white hover:bg-white dark:hover:bg-black/70 transition-colors shadow-lg"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-
-                        {/* Content */}
-                        <div className="p-6">
-                            <div className="flex items-start justify-between gap-4 mb-4">
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                                    {selectedProduct.name}
-                                </h3>
-                                <span
-                                    className="text-xl font-bold shrink-0"
-                                    style={{ color: themeColor }}
-                                >
-                                    ₺{selectedProduct.price.toFixed(2)}
-                                </span>
-                            </div>
-
-                            {selectedProduct.description && (
-                                <p className="text-slate-600 dark:text-white/60 text-sm leading-relaxed">
-                                    {selectedProduct.description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-                </div>
+                <ProductSheet
+                    product={selectedProduct}
+                    themeColor={themeColor}
+                    formatPrice={formatPrice}
+                    onClose={() => setSelectedProduct(null)}
+                />
             )}
 
-            {/* Footer */}
-            <footer className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-[#12121a]/80 backdrop-blur-xl border-t border-slate-200 dark:border-white/5 py-3">
-                <div className="max-w-4xl mx-auto px-4 text-center">
-                    <p className="text-xs text-slate-400 dark:text-white/30">
-                        Powered by <span className="font-semibold" style={{ color: themeColor }}>{SITE_NAME}</span>
-                    </p>
+            <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/92 py-3 backdrop-blur-xl">
+                <div className="mx-auto flex max-w-5xl items-center justify-between px-4 text-xs font-bold text-slate-400 sm:px-6">
+                    <span>{restaurantState.name}</span>
+                    <span>
+                        Powered by <span style={{ color: themeColor }}>{SITE_NAME}</span>
+                    </span>
                 </div>
             </footer>
         </div>
     );
 }
 
-// Product Card Component
+function InfoPill({
+    icon: Icon,
+    label,
+    href,
+}: {
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    href?: string;
+}) {
+    const content = (
+        <>
+            <Icon className="h-4 w-4" />
+            {label}
+        </>
+    );
+
+    if (href) {
+        return (
+            <a href={href} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/85 px-3 py-2 text-xs font-black text-slate-600 shadow-sm ring-1 ring-slate-900/5">
+                {content}
+            </a>
+        );
+    }
+
+    return (
+        <span className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/85 px-3 py-2 text-xs font-black text-slate-600 shadow-sm ring-1 ring-slate-900/5">
+            {content}
+        </span>
+    );
+}
+
+function CategorySection({
+    category,
+    themeColor,
+    formatPrice,
+    onSelectProduct,
+}: {
+    category: RestaurantMenuData["categories"][number];
+    themeColor: string;
+    formatPrice: (value: number) => string;
+    onSelectProduct: (product: MenuProduct) => void;
+}) {
+    return (
+        <section>
+            <div className="mb-4 flex items-end justify-between gap-4">
+                <div>
+                    <h2 className="text-2xl font-black text-slate-950">{category.name}</h2>
+                    <p className="mt-1 text-sm font-semibold text-slate-400">{category.products.length} ürün</p>
+                </div>
+            </div>
+
+            {category.products.length > 0 ? (
+                <div className="grid gap-3">
+                    {category.products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                            themeColor={themeColor}
+                            formatPrice={formatPrice}
+                            onClick={() => onSelectProduct(product)}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center">
+                    <PackageOpen className="mx-auto h-10 w-10 text-slate-300" />
+                    <p className="mt-3 text-sm font-semibold text-slate-500">Bu kategoride henüz ürün yok.</p>
+                </div>
+            )}
+        </section>
+    );
+}
+
 function ProductCard({
     product,
     themeColor,
-    onClick
+    formatPrice,
+    onClick,
 }: {
-    product: { id: string; name: string; description: string | null; price: number; image_url: string | null };
+    product: MenuProduct;
     themeColor: string;
+    formatPrice: (value: number) => string;
     onClick: () => void;
 }) {
+    const imageUrl = product.image_url && product.image_url.trim() !== "" ? product.image_url : DEFAULT_PRODUCT_IMAGE_URL;
+
     return (
         <button
+            type="button"
             onClick={onClick}
-            className="w-full flex items-center gap-4 p-3 rounded-2xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:shadow-md transition-all text-left group"
+            className="group grid w-full grid-cols-[92px_1fr_auto] items-center gap-4 rounded-3xl border border-slate-200 bg-white p-3 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-lg sm:grid-cols-[112px_1fr_auto] sm:p-4"
         >
-            {/* Image */}
-            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-slate-100 dark:bg-white/5 overflow-hidden shrink-0">
-                {product.image_url ? (
-                    <img
-                        src={product.image_url}
-                        alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                ) : (
-                    <img
-                        src={DEFAULT_PRODUCT_IMAGE_URL}
-                        alt="Varsayılan ürün görseli"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                )}
+            <div className="aspect-square overflow-hidden rounded-2xl bg-slate-100">
+                <div
+                    className="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
+                    style={{ backgroundImage: `url("${imageUrl}")` }}
+                    aria-label={product.name}
+                />
             </div>
-
-            {/* Info */}
-            <div className="flex-1 min-w-0">
-                <h4 className="text-[15px] font-semibold text-slate-900 dark:text-white truncate">
-                    {product.name}
-                </h4>
-                {product.description && (
-                    <p className="text-[13px] text-slate-500 dark:text-white/40 line-clamp-2 mt-1">
-                        {product.description}
-                    </p>
-                )}
-                <p
-                    className="text-[15px] font-bold mt-2"
-                    style={{ color: themeColor }}
-                >
-                    ₺{product.price.toFixed(2)}
+            <div className="min-w-0">
+                <h3 className="truncate text-base font-black text-slate-950 sm:text-lg">{product.name}</h3>
+                <p className="mt-1 line-clamp-2 text-sm leading-5 text-slate-500">
+                    {product.description || "Açıklama eklenmemiş."}
+                </p>
+                <p className="mt-3 text-base font-black" style={{ color: themeColor }}>
+                    {formatPrice(product.price)}
                 </p>
             </div>
-
-            {/* Arrow */}
-            <ChevronDown className="w-5 h-5 text-slate-300 dark:text-white/20 -rotate-90 group-hover:translate-x-1 transition-transform shrink-0" />
+            <ChevronRight className="h-5 w-5 text-slate-300 transition-transform group-hover:translate-x-1" />
         </button>
+    );
+}
+
+function ProductSheet({
+    product,
+    themeColor,
+    formatPrice,
+    onClose,
+}: {
+    product: MenuProduct;
+    themeColor: string;
+    formatPrice: (value: number) => string;
+    onClose: () => void;
+}) {
+    const imageUrl = product.image_url && product.image_url.trim() !== "" ? product.image_url : DEFAULT_PRODUCT_IMAGE_URL;
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4">
+            <button className="absolute inset-0 bg-slate-950/65 backdrop-blur-sm" onClick={onClose} aria-label="Ürün detayını kapat" />
+            <div className="relative max-h-[88vh] w-full overflow-hidden rounded-t-[2rem] bg-white shadow-2xl sm:max-w-lg sm:rounded-[2rem]">
+                <div className="relative aspect-[4/3] bg-slate-100">
+                    <div className="h-full w-full bg-cover bg-center" style={{ backgroundImage: `url("${imageUrl}")` }} aria-label={product.name} />
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/90 text-slate-700 shadow-lg backdrop-blur"
+                        aria-label="Kapat"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+                <div className="p-6">
+                    <div className="flex items-start justify-between gap-4">
+                        <h3 className="text-2xl font-black text-slate-950">{product.name}</h3>
+                        <span className="shrink-0 text-xl font-black" style={{ color: themeColor }}>
+                            {formatPrice(product.price)}
+                        </span>
+                    </div>
+                    <p className="mt-4 text-sm leading-7 text-slate-600">
+                        {product.description || "Bu ürün için açıklama henüz eklenmemiş."}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function EmptyState({ title, text }: { title: string; text: string }) {
+    return (
+        <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
+            <PackageOpen className="mx-auto h-12 w-12 text-slate-300" />
+            <h3 className="mt-4 text-xl font-black text-slate-950">{title}</h3>
+            <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">{text}</p>
+        </div>
     );
 }

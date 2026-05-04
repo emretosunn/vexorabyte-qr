@@ -9,13 +9,13 @@ import {
     UtensilsCrossed,
     Settings,
     Menu,
-    QrCode,
     ChevronRight,
     X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/site";
 import { SignOutButton } from "./SignOutButton";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const navigation = [
     {
@@ -59,9 +59,7 @@ export function MobileNav({ restaurantName, plan }: MobileNavProps) {
             {/* Mobile Header */}
             <div className="lg:hidden flex items-center justify-between px-4 h-16 bg-white dark:bg-[#18181f] border-b border-slate-200 dark:border-white/5">
                 <div className="flex items-center gap-3">
-                    <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
-                        <QrCode className="w-5 h-5 text-white" />
-                    </div>
+                    <BrandLogo className="h-9 w-9 rounded-xl" priority />
                     <span className="text-[15px] font-semibold text-slate-900 dark:text-white">
                         {SITE_NAME}
                     </span>

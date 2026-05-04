@@ -1,20 +1,31 @@
-import { notFound } from 'next/navigation';
-import { getRestaurantMenuBySlug } from './actions';
-import { MenuClient } from './MenuClient';
-import { Metadata } from 'next';
-import { SITE_NAME } from '@/lib/site';
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { SITE_NAME } from "@/lib/site";
+import { getRestaurantMenuBySlug } from "./actions";
+import { MenuClient } from "./MenuClient";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface Props {
     params: Promise<{ slug: string }>;
 }
 
+const reservedRoutes = [
+    "login",
+    "register",
+    "forgot-password",
+    "onboarding",
+    "dashboard",
+    "kategoriler",
+    "urunler",
+    "ayarlar",
+    "api",
+    "_next",
+];
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
 
-    // Skip system routes
-    const reservedRoutes = ['login', 'register', 'forgot-password', 'onboarding', 'dashboard', 'kategoriler', 'urunler', 'ayarlar', 'api', '_next'];
     if (reservedRoutes.includes(slug)) {
         return {};
     }
@@ -36,8 +47,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function RestaurantMenuPage({ params }: Props) {
     const { slug } = await params;
 
-    // Skip system routes
-    const reservedRoutes = ['login', 'register', 'forgot-password', 'onboarding', 'dashboard', 'kategoriler', 'urunler', 'ayarlar', 'api', '_next'];
     if (reservedRoutes.includes(slug)) {
         notFound();
     }

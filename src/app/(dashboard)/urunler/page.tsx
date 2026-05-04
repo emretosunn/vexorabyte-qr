@@ -6,44 +6,46 @@ import { ProductsList } from "./ProductsList";
 async function getProductsData() {
     const supabase = await createClient();
 
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/auth/login');
+        redirect("/auth/login");
     }
 
     const { data: restaurant } = await supabase
-        .from('restaurants')
-        .select('id')
-        .eq('owner_id', user.id)
-        .order('created_at', { ascending: true })
+        .from("restaurants")
+        .select("id")
+        .eq("owner_id", user.id)
+        .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
 
     if (!restaurant) {
-        redirect('/onboarding');
+        redirect("/onboarding");
     }
 
     const [productsResult, categoriesResult] = await Promise.all([
         supabase
-            .from('products')
+            .from("products")
             .select(`
-        *,
-        categories:category_id(id, name)
-      `)
-            .eq('restaurant_id', restaurant.id)
-            .order('created_at', { ascending: false }),
+                *,
+                categories:category_id(id, name)
+            `)
+            .eq("restaurant_id", restaurant.id)
+            .order("created_at", { ascending: false }),
         supabase
-            .from('categories')
-            .select('id, name')
-            .eq('restaurant_id', restaurant.id)
-            .order('sort_order', { ascending: true })
+            .from("categories")
+            .select("id, name")
+            .eq("restaurant_id", restaurant.id)
+            .order("sort_order", { ascending: true }),
     ]);
 
     return {
         products: productsResult.data || [],
         categories: categoriesResult.data || [],
-        restaurantId: restaurant.id
+        restaurantId: restaurant.id,
     };
 }
 
@@ -51,13 +53,9 @@ export default async function UrunlerPage() {
     const { products, categories, restaurantId } = await getProductsData();
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <Header title="Ürünler" description="Menü ürünlerinizi yönetin" />
-            <ProductsList
-                initialProducts={products}
-                categories={categories}
-                restaurantId={restaurantId}
-            />
+        <div className="flex min-h-screen flex-col bg-slate-50/70 dark:bg-[#0a0a0d]">
+            <Header title="Ürünler" description="Menünüzde görünen ürün, fiyat ve açıklamaları yönetin" />
+            <ProductsList initialProducts={products} categories={categories} restaurantId={restaurantId} />
         </div>
     );
 }

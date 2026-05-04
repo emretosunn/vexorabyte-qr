@@ -1,8 +1,9 @@
 "use client";
 
-import { QrCode, Store, FileText, Phone, Globe, Sun, Moon, ArrowRight, Loader2 } from "lucide-react";
+import { Store, Phone, Globe, Sun, Moon, ArrowRight, Loader2 } from "lucide-react";
 import { useState, useTransition } from "react";
 import { createRestaurant } from "./actions";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export default function OnboardingPage() {
     const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -67,9 +68,7 @@ export default function OnboardingPage() {
             <div className="relative max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-500 mb-4">
-                        <QrCode className="w-7 h-7 text-white" />
-                    </div>
+                    <BrandLogo className="mx-auto mb-4 h-14 w-14 rounded-2xl" priority />
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
                         Restoranınızı Oluşturun
                     </h1>

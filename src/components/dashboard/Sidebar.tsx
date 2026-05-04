@@ -7,12 +7,12 @@ import {
   FolderOpen,
   UtensilsCrossed,
   Settings,
-  QrCode,
   ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SITE_NAME } from "@/lib/site";
 import { SignOutButton } from "./SignOutButton";
+import { BrandLogo } from "@/components/BrandLogo";
 
 const navigation = [
   {
@@ -54,9 +54,7 @@ export function Sidebar({ restaurantName, plan }: SidebarProps) {
     <aside className="hidden lg:flex lg:flex-col lg:w-72 lg:fixed lg:inset-y-0 bg-white dark:bg-[#18181f] border-r border-slate-200 dark:border-white/5">
       {/* Logo Section */}
       <div className="flex items-center gap-3 px-6 h-16 border-b border-slate-200 dark:border-white/5">
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
-          <QrCode className="w-5 h-5 text-white" />
-        </div>
+        <BrandLogo className="h-9 w-9 rounded-xl" priority />
         <div className="flex flex-col">
           <span className="text-[15px] font-semibold text-slate-900 dark:text-white tracking-tight">{SITE_NAME}</span>
           <span className="text-[11px] text-slate-500 dark:text-white/40">Yönetim Paneli</span>

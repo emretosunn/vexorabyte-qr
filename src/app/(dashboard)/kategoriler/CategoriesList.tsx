@@ -1,8 +1,21 @@
 "use client";
 
-import { Plus, FolderOpen, Trash2, Edit, X, Loader2, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
-import { useState, useTransition } from "react";
-import { createCategory, updateCategory, deleteCategory, reorderCategories } from "./actions";
+import {
+    AlertCircle,
+    ArrowDown,
+    ArrowUp,
+    Edit,
+    FolderOpen,
+    GripVertical,
+    Layers3,
+    Loader2,
+    Plus,
+    Sparkles,
+    Trash2,
+    X,
+} from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { createCategory, deleteCategory, reorderCategories, updateCategory } from "./actions";
 
 interface Category {
     id: string;
@@ -27,16 +40,22 @@ export function CategoriesList({ initialCategories, restaurantId }: CategoriesLi
     const [draggingCategoryId, setDraggingCategoryId] = useState<string | null>(null);
     const [dragOverCategoryId, setDragOverCategoryId] = useState<string | null>(null);
 
+    const totalProducts = useMemo(
+        () => categories.reduce((total, category) => total + category.product_count, 0),
+        [categories]
+    );
+    const emptyCategories = categories.filter((category) => category.product_count === 0).length;
+
     async function handleCreate(formData: FormData) {
         setError(null);
-        formData.set('restaurant_id', restaurantId);
+        formData.set("restaurant_id", restaurantId);
 
         startTransition(async () => {
             const result = await createCategory(formData);
             if (result.error) {
                 setError(result.error);
             } else if (result.category) {
-                setCategories(prev => [...prev, { ...result.category, product_count: 0 }]);
+                setCategories((prev) => [...prev, { ...result.category, product_count: 0 }]);
                 setShowAddModal(false);
             }
         });
@@ -45,16 +64,18 @@ export function CategoriesList({ initialCategories, restaurantId }: CategoriesLi
     async function handleUpdate(formData: FormData) {
         if (!selectedCategory) return;
         setError(null);
-        formData.set('id', selectedCategory.id);
+        formData.set("id", selectedCategory.id);
 
         startTransition(async () => {
             const result = await updateCategory(formData);
             if (result.error) {
                 setError(result.error);
             } else {
-                const newName = formData.get('name') as string;
-                setCategories(prev =>
-                    prev.map(cat => cat.id === selectedCategory.id ? { ...cat, name: newName } : cat)
+                const newName = formData.get("name") as string;
+                setCategories((prev) =>
+                    prev.map((category) =>
+                        category.id === selectedCategory.id ? { ...category, name: newName } : category
+                    )
                 );
                 setShowEditModal(false);
                 setSelectedCategory(null);
@@ -71,7 +92,7 @@ export function CategoriesList({ initialCategories, restaurantId }: CategoriesLi
             if (result.error) {
                 setError(result.error);
             } else {
-                setCategories(prev => prev.filter(cat => cat.id !== selectedCategory.id));
+                setCategories((prev) => prev.filter((category) => category.id !== selectedCategory.id));
                 setShowDeleteModal(false);
                 setSelectedCategory(null);
             }
@@ -120,291 +141,281 @@ export function CategoriesList({ initialCategories, restaurantId }: CategoriesLi
         persistCategoryOrder(updated);
     }
 
+    function openEditModal(category: Category) {
+        setError(null);
+        setSelectedCategory(category);
+        setShowEditModal(true);
+    }
+
+    function openDeleteModal(category: Category) {
+        setError(null);
+        setSelectedCategory(category);
+        setShowDeleteModal(true);
+    }
+
     return (
         <>
-            <div className="flex-1 p-6 space-y-6">
-                {/* Header Actions */}
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div>
-                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                            Menü Kategorileri
-                        </h2>
-                        <p className="text-slate-500 dark:text-white/40 mt-1 text-[14px]">
-                            Toplam {categories.length} kategori
-                        </p>
+            <div className="flex-1 space-y-6 p-4 sm:p-6">
+                {error && (
+                    <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                        <div className="flex items-center gap-2">
+                            <AlertCircle className="h-4 w-4" />
+                            {error}
+                        </div>
                     </div>
-                    <button
-                        onClick={() => setShowAddModal(true)}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[13px] font-medium hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/25"
-                    >
-                        <Plus className="w-4 h-4" />
-                        Yeni Kategori
-                    </button>
-                </div>
+                )}
 
-                {/* Categories Grid */}
-                {categories.length > 0 ? (
-                    <div className="space-y-4 max-w-3xl">
-                        {categories.map((category, index) => (
-                            <div
-                                key={category.id}
-                                onDragOver={(event) => {
-                                    event.preventDefault();
-                                    if (draggingCategoryId && draggingCategoryId !== category.id) {
-                                        setDragOverCategoryId(category.id);
-                                    }
+                <section className="grid gap-5 xl:grid-cols-[1.25fr_0.75fr]">
+                    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/5 dark:bg-white/[0.03]">
+                        <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                            <div>
+                                <div className="mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-orange-50 text-orange-600 dark:bg-orange-500/10">
+                                    <Layers3 className="h-6 w-6" />
+                                </div>
+                                <h2 className="text-2xl font-black text-slate-950 dark:text-white">Menü kategorileri</h2>
+                                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 dark:text-white/45">
+                                    Kategoriler müşterinin menüde hızlı gezmesini sağlar. Sıra neyse public menüde de aynı sırayla görünür.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setError(null);
+                                    setShowAddModal(true);
                                 }}
-                                onDrop={(event) => {
-                                    event.preventDefault();
-                                    const draggedId = event.dataTransfer.getData("text/category-id") || draggingCategoryId;
-                                    if (draggedId) {
-                                        moveCategoryByDrag(draggedId, category.id);
-                                    }
-                                    setDraggingCategoryId(null);
-                                    setDragOverCategoryId(null);
-                                }}
-                                className={`group relative p-4 rounded-2xl bg-white dark:bg-white/[0.02] border hover:shadow-lg dark:hover:bg-white/[0.04] transition-all ${dragOverCategoryId === category.id
-                                    ? "border-orange-400 ring-2 ring-orange-200/70 dark:ring-orange-500/30"
-                                    : "border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                    }`}
+                                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-white shadow-xl shadow-orange-500/20"
                             >
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
-                                        <button
-                                            type="button"
-                                            draggable
-                                            onDragStart={(event) => {
-                                                setDraggingCategoryId(category.id);
-                                                event.dataTransfer.setData("text/category-id", category.id);
-                                                event.dataTransfer.effectAllowed = "move";
-                                            }}
-                                            onDragEnd={() => {
-                                                setDraggingCategoryId(null);
-                                                setDragOverCategoryId(null);
-                                            }}
-                                            className="p-2 rounded-lg text-slate-300 dark:text-white/20 hover:bg-slate-100 dark:hover:bg-white/10 cursor-grab active:cursor-grabbing"
-                                            title="Sürükleyerek sırala"
-                                        >
-                                            <GripVertical className="w-4 h-4" />
-                                        </button>
-                                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 text-orange-500 dark:text-orange-400">
-                                            <FolderOpen className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-[14px] font-semibold text-slate-900 dark:text-white">
-                                                {category.name}
-                                            </h3>
-                                            <p className="text-[12px] text-slate-500 dark:text-white/30">
-                                                {category.product_count} ürün
-                                            </p>
-                                        </div>
-                                    </div>
+                                <Plus className="h-4 w-4" />
+                                Yeni kategori
+                            </button>
+                        </div>
 
-                                    {/* Actions Menu */}
-                                    <div className="relative">
-                                        <div className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-white/[0.04]">
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Kategori</p>
+                                <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{categories.length}</p>
+                            </div>
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-white/[0.04]">
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Ürün</p>
+                                <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{totalProducts}</p>
+                            </div>
+                            <div className="rounded-2xl bg-slate-50 p-4 dark:bg-white/[0.04]">
+                                <p className="text-xs font-bold uppercase tracking-[0.14em] text-slate-400">Boş kategori</p>
+                                <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">{emptyCategories}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside className="rounded-3xl border border-orange-200 bg-gradient-to-br from-orange-50 to-amber-50 p-6 shadow-sm dark:border-orange-500/15 dark:from-orange-500/10 dark:to-amber-500/5">
+                        <div className="flex items-start gap-4">
+                            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-orange-600 shadow-sm dark:bg-white/10">
+                                <Sparkles className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-slate-950 dark:text-white">İyi menü sırası</h3>
+                                <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-white/55">
+                                    En çok satmak istediğiniz bölümleri yukarı alın. İçecek ve tatlıları ayrı kategori yapmak müşteriye kolaylık sağlar.
+                                </p>
+                            </div>
+                        </div>
+                    </aside>
+                </section>
+
+                {categories.length > 0 ? (
+                    <section className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-white/5 dark:bg-white/[0.03] sm:p-6">
+                        <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 className="text-lg font-black text-slate-950 dark:text-white">Kategori sırası</h3>
+                                <p className="text-sm text-slate-500 dark:text-white/40">
+                                    Tutup sürükleyin veya oklarla taşıyın. Değişiklik otomatik kaydedilir.
+                                </p>
+                            </div>
+                            {isPending && (
+                                <span className="inline-flex items-center gap-2 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-700 dark:bg-orange-500/10 dark:text-orange-300">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    Kaydediliyor
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="space-y-3">
+                            {categories.map((category, index) => (
+                                <div
+                                    key={category.id}
+                                    onDragOver={(event) => {
+                                        event.preventDefault();
+                                        if (draggingCategoryId && draggingCategoryId !== category.id) {
+                                            setDragOverCategoryId(category.id);
+                                        }
+                                    }}
+                                    onDrop={(event) => {
+                                        event.preventDefault();
+                                        const draggedId = event.dataTransfer.getData("text/category-id") || draggingCategoryId;
+                                        if (draggedId) {
+                                            moveCategoryByDrag(draggedId, category.id);
+                                        }
+                                        setDraggingCategoryId(null);
+                                        setDragOverCategoryId(null);
+                                    }}
+                                    className={`group rounded-2xl border bg-slate-50 p-4 transition-all dark:bg-white/[0.03] ${
+                                        dragOverCategoryId === category.id
+                                            ? "border-orange-400 ring-4 ring-orange-200/60 dark:ring-orange-500/20"
+                                            : "border-slate-200 hover:border-orange-200 dark:border-white/5"
+                                    }`}
+                                >
+                                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                                        <div className="flex min-w-0 items-center gap-3">
                                             <button
+                                                type="button"
+                                                draggable
+                                                onDragStart={(event) => {
+                                                    setDraggingCategoryId(category.id);
+                                                    event.dataTransfer.setData("text/category-id", category.id);
+                                                    event.dataTransfer.effectAllowed = "move";
+                                                }}
+                                                onDragEnd={() => {
+                                                    setDraggingCategoryId(null);
+                                                    setDragOverCategoryId(null);
+                                                }}
+                                                className="grid h-10 w-10 shrink-0 cursor-grab place-items-center rounded-xl bg-white text-slate-400 shadow-sm active:cursor-grabbing dark:bg-white/10"
+                                                title="Sürükleyerek sırala"
+                                            >
+                                                <GripVertical className="h-4 w-4" />
+                                            </button>
+                                            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-orange-50 text-orange-600 dark:bg-orange-500/10">
+                                                <FolderOpen className="h-5 w-5" />
+                                            </div>
+                                            <div className="min-w-0">
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    <h4 className="truncate text-base font-black text-slate-950 dark:text-white">{category.name}</h4>
+                                                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-bold text-slate-500 shadow-sm dark:bg-white/10 dark:text-white/45">
+                                                        Sıra {index + 1}
+                                                    </span>
+                                                </div>
+                                                <p className="mt-1 text-sm text-slate-500 dark:text-white/40">
+                                                    {category.product_count} ürün bu kategoride listeleniyor.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center gap-1 self-end sm:self-auto">
+                                            <button
+                                                type="button"
                                                 onClick={() => moveCategory(index, "up")}
                                                 disabled={isPending || index === 0}
-                                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                className="grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-white/10 dark:text-white/45"
                                                 title="Yukarı taşı"
                                             >
-                                                <ArrowUp className="w-4 h-4" />
+                                                <ArrowUp className="h-4 w-4" />
                                             </button>
                                             <button
+                                                type="button"
                                                 onClick={() => moveCategory(index, "down")}
                                                 disabled={isPending || index === categories.length - 1}
-                                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                                className="grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-500 shadow-sm transition-colors hover:text-slate-900 disabled:cursor-not-allowed disabled:opacity-35 dark:bg-white/10 dark:text-white/45"
                                                 title="Aşağı taşı"
                                             >
-                                                <ArrowDown className="w-4 h-4" />
+                                                <ArrowDown className="h-4 w-4" />
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    setSelectedCategory(category);
-                                                    setShowEditModal(true);
-                                                }}
-                                                className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400 dark:text-white/40 hover:text-slate-600 dark:hover:text-white transition-colors"
+                                                type="button"
+                                                onClick={() => openEditModal(category)}
+                                                className="grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-500 shadow-sm transition-colors hover:text-orange-600 dark:bg-white/10 dark:text-white/45"
+                                                title="Düzenle"
                                             >
-                                                <Edit className="w-4 h-4" />
+                                                <Edit className="h-4 w-4" />
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    setSelectedCategory(category);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                                className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-slate-400 dark:text-white/40 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                                type="button"
+                                                onClick={() => openDeleteModal(category)}
+                                                className="grid h-10 w-10 place-items-center rounded-xl bg-white text-slate-500 shadow-sm transition-colors hover:text-red-500 dark:bg-white/10 dark:text-white/45"
+                                                title="Sil"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="h-4 w-4" />
                                             </button>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col items-center justify-center py-16 text-center">
-                        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 text-orange-500 dark:text-orange-400 mb-4">
-                            <FolderOpen className="w-8 h-8" />
+                            ))}
                         </div>
-                        <h3 className="text-[16px] font-semibold text-slate-900 dark:text-white mb-2">
-                            Henüz kategori yok
-                        </h3>
-                        <p className="text-[13px] text-slate-500 dark:text-white/40 mb-4 max-w-sm">
-                            Menünüzü düzenlemek için kategoriler oluşturun. Örneğin: Ana Yemekler, İçecekler, Tatlılar
+                    </section>
+                ) : (
+                    <section className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm dark:border-white/10 dark:bg-white/[0.03]">
+                        <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-orange-50 text-orange-600 dark:bg-orange-500/10">
+                            <FolderOpen className="h-8 w-8" />
+                        </div>
+                        <h3 className="mt-5 text-xl font-black text-slate-950 dark:text-white">Henüz kategori yok</h3>
+                        <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500 dark:text-white/40">
+                            Menünüzü bölümlere ayırmak için ilk kategorinizi oluşturun. Örneğin: Kahvaltı, Ana Yemekler, İçecekler, Tatlılar.
                         </p>
                         <button
+                            type="button"
                             onClick={() => setShowAddModal(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[13px] font-medium hover:opacity-90 transition-opacity"
+                            className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-orange-600 px-5 py-3 text-sm font-black text-white"
                         >
-                            <Plus className="w-4 h-4" />
-                            İlk Kategoriyi Ekle
+                            <Plus className="h-4 w-4" />
+                            İlk kategoriyi ekle
                         </button>
-                    </div>
+                    </section>
                 )}
             </div>
 
-            {/* Add Modal */}
-            {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
-                    <div className="relative w-full max-w-md p-6 rounded-2xl bg-white dark:bg-[#18181f] border border-slate-200 dark:border-white/10 shadow-2xl">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-[17px] font-semibold text-slate-900 dark:text-white">Yeni Kategori</h3>
-                            <button onClick={() => setShowAddModal(false)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
+            <CategoryModal
+                mode="create"
+                open={showAddModal}
+                pending={isPending}
+                error={error}
+                onClose={() => setShowAddModal(false)}
+                onSubmit={handleCreate}
+            />
 
-                        {error && (
-                            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[13px]">
-                                {error}
-                            </div>
-                        )}
+            <CategoryModal
+                mode="edit"
+                open={showEditModal && Boolean(selectedCategory)}
+                pending={isPending}
+                error={error}
+                initialName={selectedCategory?.name}
+                onClose={() => {
+                    setShowEditModal(false);
+                    setSelectedCategory(null);
+                }}
+                onSubmit={handleUpdate}
+            />
 
-                        <form action={handleCreate}>
-                            <div className="mb-6">
-                                <label className="block text-[13px] font-medium text-slate-700 dark:text-white/70 mb-2">
-                                    Kategori Adı
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    required
-                                    placeholder="Örn: Ana Yemekler"
-                                    disabled={isPending}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-[14px] placeholder:text-slate-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 dark:focus:border-orange-500/50 transition-all disabled:opacity-50"
-                                />
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddModal(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white/70 text-[13px] font-medium hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                                >
-                                    İptal
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isPending}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-                                    Ekle
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Edit Modal */}
-            {showEditModal && selectedCategory && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowEditModal(false); setSelectedCategory(null); }} />
-                    <div className="relative w-full max-w-md p-6 rounded-2xl bg-white dark:bg-[#18181f] border border-slate-200 dark:border-white/10 shadow-2xl">
-                        <div className="flex items-center justify-between mb-6">
-                            <h3 className="text-[17px] font-semibold text-slate-900 dark:text-white">Kategori Düzenle</h3>
-                            <button onClick={() => { setShowEditModal(false); setSelectedCategory(null); }} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 text-slate-400">
-                                <X className="w-5 h-5" />
-                            </button>
-                        </div>
-
-                        {error && (
-                            <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 text-[13px]">
-                                {error}
-                            </div>
-                        )}
-
-                        <form action={handleUpdate}>
-                            <div className="mb-6">
-                                <label className="block text-[13px] font-medium text-slate-700 dark:text-white/70 mb-2">
-                                    Kategori Adı
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    required
-                                    defaultValue={selectedCategory.name}
-                                    disabled={isPending}
-                                    className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white text-[14px] focus:outline-none focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 dark:focus:border-orange-500/50 transition-all disabled:opacity-50"
-                                />
-                            </div>
-                            <div className="flex gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => { setShowEditModal(false); setSelectedCategory(null); }}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white/70 text-[13px] font-medium hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
-                                >
-                                    İptal
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isPending}
-                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[13px] font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
-                                >
-                                    {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                                    Kaydet
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Delete Confirmation Modal */}
             {showDeleteModal && selectedCategory && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowDeleteModal(false); setSelectedCategory(null); }} />
-                    <div className="relative w-full max-w-md p-6 rounded-2xl bg-white dark:bg-[#18181f] border border-slate-200 dark:border-white/10 shadow-2xl">
-                        <div className="flex items-center justify-center w-14 h-14 mx-auto mb-4 rounded-full bg-red-100 dark:bg-red-500/10">
-                            <Trash2 className="w-7 h-7 text-red-500" />
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowDeleteModal(false)} />
+                    <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#18181f]">
+                        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-red-100 text-red-500 dark:bg-red-500/10">
+                            <Trash2 className="h-7 w-7" />
                         </div>
-                        <h3 className="text-[17px] font-semibold text-slate-900 dark:text-white text-center mb-2">
-                            Kategori Silinecek
-                        </h3>
-                        <p className="text-[13px] text-slate-500 dark:text-white/40 text-center mb-6">
-                            <strong className="text-slate-700 dark:text-white">{selectedCategory.name}</strong> kategorisini silmek istediğinize emin misiniz?
+                        <h3 className="text-center text-lg font-black text-slate-950 dark:text-white">Kategori silinecek</h3>
+                        <p className="mt-2 text-center text-sm leading-6 text-slate-500 dark:text-white/45">
+                            <strong className="font-black text-slate-800 dark:text-white">{selectedCategory.name}</strong> kategorisini silmek istediğinize emin misiniz?
                             {selectedCategory.product_count > 0 && (
-                                <span className="block mt-1 text-red-500 dark:text-red-400">
-                                    Bu kategoride {selectedCategory.product_count} ürün bulunuyor!
+                                <span className="mt-2 block text-red-500">
+                                    Bu kategoride {selectedCategory.product_count} ürün bulunuyor.
                                 </span>
                             )}
                         </p>
-                        <div className="flex gap-3">
+                        <div className="mt-6 flex gap-3">
                             <button
-                                onClick={() => { setShowDeleteModal(false); setSelectedCategory(null); }}
-                                className="flex-1 px-4 py-3 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white/70 text-[13px] font-medium hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+                                type="button"
+                                onClick={() => {
+                                    setShowDeleteModal(false);
+                                    setSelectedCategory(null);
+                                }}
+                                className="flex-1 rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 dark:bg-white/5 dark:text-white/70"
                             >
                                 Vazgeç
                             </button>
                             <button
+                                type="button"
                                 onClick={handleDelete}
                                 disabled={isPending}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500 text-white text-[13px] font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                                className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-red-500 px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
                             >
-                                {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                                 Sil
                             </button>
                         </div>
@@ -412,5 +423,86 @@ export function CategoriesList({ initialCategories, restaurantId }: CategoriesLi
                 </div>
             )}
         </>
+    );
+}
+
+function CategoryModal({
+    mode,
+    open,
+    pending,
+    error,
+    initialName,
+    onClose,
+    onSubmit,
+}: {
+    mode: "create" | "edit";
+    open: boolean;
+    pending: boolean;
+    error: string | null;
+    initialName?: string;
+    onClose: () => void;
+    onSubmit: (formData: FormData) => void;
+}) {
+    if (!open) return null;
+
+    const isCreate = mode === "create";
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-white/10 dark:bg-[#18181f]">
+                <div className="mb-6 flex items-center justify-between">
+                    <div>
+                        <h3 className="text-lg font-black text-slate-950 dark:text-white">
+                            {isCreate ? "Yeni kategori" : "Kategoriyi düzenle"}
+                        </h3>
+                        <p className="mt-1 text-sm text-slate-500 dark:text-white/40">
+                            {isCreate ? "Menünüzde yeni bir bölüm oluşturun." : "Kategori adını müşterinin anlayacağı şekilde güncelleyin."}
+                        </p>
+                    </div>
+                    <button type="button" onClick={onClose} className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-400 dark:bg-white/10">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+
+                {error && (
+                    <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                        {error}
+                    </div>
+                )}
+
+                <form action={onSubmit}>
+                    <label className="block">
+                        <span className="text-sm font-bold text-slate-700 dark:text-white/70">Kategori adı</span>
+                        <input
+                            type="text"
+                            name="name"
+                            required
+                            defaultValue={initialName || ""}
+                            placeholder="Örn: Ana Yemekler"
+                            disabled={pending}
+                            className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-500/10 disabled:opacity-50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                        />
+                    </label>
+                    <div className="mt-6 flex gap-3">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="flex-1 rounded-2xl bg-slate-100 px-4 py-3 text-sm font-bold text-slate-700 dark:bg-white/5 dark:text-white/70"
+                        >
+                            Vazgeç
+                        </button>
+                        <button
+                            type="submit"
+                            disabled={pending}
+                            className="inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-sm font-black text-white disabled:opacity-50"
+                        >
+                            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                            {isCreate ? "Ekle" : "Kaydet"}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     );
 }

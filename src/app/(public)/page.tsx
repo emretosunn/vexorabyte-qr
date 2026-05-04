@@ -1,381 +1,464 @@
 import Link from "next/link";
-import { QrCode, Smartphone, BarChart3, Zap, ArrowRight, Check, Sparkles, ShieldCheck, TimerReset, PlayCircle, WandSparkles, ScanLine } from "lucide-react";
+import {
+    ArrowRight,
+    BarChart3,
+    Check,
+    ChevronRight,
+    Eye,
+    FolderOpen,
+    ImagePlus,
+    Layers3,
+    LayoutDashboard,
+    MousePointer2,
+    Package,
+    QrCode,
+    ScanLine,
+    ShieldCheck,
+    Sparkles,
+    WandSparkles,
+    Zap,
+} from "lucide-react";
 import { SITE_NAME } from "@/lib/site";
+import { BrandLogo } from "@/components/BrandLogo";
+
+const whatsappPremiumUrl =
+    "https://wa.me/905343735072?text=Merhaba%2C%20vexorabyte%20Premium%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum.";
+
+const metrics = [
+    { value: "1 dk", label: "kurulum" },
+    { value: "PNG", label: "QR indirme" },
+    { value: "7/24", label: "canlı menü" },
+    { value: "%100", label: "mobil uyum" },
+];
+
+const features = [
+    {
+        icon: LayoutDashboard,
+        title: "Tek panelden menü yönetimi",
+        description: "Restoran bilgisi, kategoriler, ürünler, fiyatlar ve menü linki aynı panelde düzenlenir.",
+    },
+    {
+        icon: QrCode,
+        title: "Restorana özel QR kod",
+        description: "Menü linkinizden yüksek kaliteli QR üretin, PNG olarak indirip masa kartlarına yerleştirin.",
+    },
+    {
+        icon: WandSparkles,
+        title: "Sürükle-bırak kategori sırası",
+        description: "Kategorileri panelden taşıyın; müşterinin gördüğü menü sırası anında değişsin.",
+    },
+    {
+        icon: ImagePlus,
+        title: "Ürün fotoğrafı ve açıklama",
+        description: "Ürünlerinizi görsel, fiyat ve açıklama ile zenginleştirerek karar vermeyi kolaylaştırın.",
+    },
+    {
+        icon: BarChart3,
+        title: "Görüntülenme takibi",
+        description: "Toplam menü görüntülenmesi ve öne çıkan ürünlerle menünüzü veriye göre geliştirin.",
+    },
+    {
+        icon: ShieldCheck,
+        title: "Güvenli Supabase altyapısı",
+        description: "Kimlik doğrulama, sahiplik kontrolleri ve güvenli veri erişimi restoran panelinizi korur.",
+    },
+];
+
+const flow = [
+    {
+        step: "01",
+        title: "Restoranını oluştur",
+        description: "Kayıt sonrası restoran adını, açıklamasını ve benzersiz menü adresini belirle.",
+        icon: Sparkles,
+    },
+    {
+        step: "02",
+        title: "Menünü düzenle",
+        description: "Kategorileri ve ürünleri ekle, fotoğrafları yükle, sıralamayı istediğin gibi ayarla.",
+        icon: Layers3,
+    },
+    {
+        step: "03",
+        title: "QR kodu masaya koy",
+        description: "PNG QR kodunu indir, bastır ve müşterinin telefonundan açılan menüyü yayına al.",
+        icon: ScanLine,
+    },
+];
+
+const comparisons = [
+    "Baskı beklemeden fiyat güncelleme",
+    "Her masa için tek, kalıcı menü linki",
+    "Mobilde hızlı açılan public menü",
+    "Ücretsiz başlangıç ve Premium büyüme alanı",
+];
+
+const menuItems = [
+    { name: "Trüflü Burger", price: "₺320", views: "1.284" },
+    { name: "Füme Kaburga Taco", price: "₺245", views: "986" },
+    { name: "Limonlu Cheesecake", price: "₺175", views: "742" },
+];
 
 export default function LandingPage() {
-    const whatsappPremiumUrl =
-        "https://wa.me/905343735072?text=Merhaba%2C%20vexorabyte%20Premium%20hakk%C4%B1nda%20bilgi%20almak%20istiyorum.";
-    const features = [
-        {
-            icon: QrCode,
-            title: "Otomatik QR ve PNG indirme",
-            description: "Menü linkinizden tek tıkla QR oluşturun, yüksek kalitede PNG olarak indirin.",
-        },
-        {
-            icon: Smartphone,
-            title: "Mobilde premium menü deneyimi",
-            description: "Müşterileriniz telefondan hızlı açılan, modern ve akıcı bir menü deneyimi yaşar.",
-        },
-        {
-            icon: BarChart3,
-            title: "Ürün ve kategori performansı",
-            description: "Hangi ürünler daha çok görüntüleniyor görün, menünüzü veriye göre iyileştirin.",
-        },
-        {
-            icon: WandSparkles,
-            title: "Sürükle-bırak kategori sıralama",
-            description: "Dashboard’dan kategorileri tek hareketle sıralayın, menü anında güncellensin.",
-        },
-        {
-            icon: TimerReset,
-            title: "Realtime anlık güncelleme",
-            description: "Fiyat, ürün ve kategori değişiklikleri menü sayfasına sayfa yenilemeden anında yansır.",
-        },
-        {
-            icon: ShieldCheck,
-            title: "Güvenli altyapı",
-            description: "Supabase tabanlı yapı, güvenli kimlik doğrulama ve sağlam veri erişim modeli.",
-        },
-    ];
-
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#0a0a0d] overflow-x-hidden selection:bg-orange-200/60">
-            <div className="pointer-events-none fixed inset-0 -z-10">
-                <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-orange-500/15 blur-3xl animate-pulse" />
-                <div className="absolute top-1/3 -right-24 h-80 w-80 rounded-full bg-amber-500/10 blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 left-1/3 h-72 w-72 rounded-full bg-indigo-500/10 blur-3xl animate-pulse" />
-            </div>
+        <main className="min-h-screen overflow-x-hidden bg-[#fffaf2] text-slate-950 selection:bg-orange-200/70">
+            <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_18%_12%,rgba(249,115,22,0.16),transparent_28%),radial-gradient(circle_at_78%_4%,rgba(20,184,166,0.12),transparent_25%),linear-gradient(180deg,#fffaf2_0%,#fff7ed_42%,#f8fafc_100%)]" />
 
-            {/* Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0a0a0d]/80 backdrop-blur-xl border-b border-slate-200 dark:border-white/5">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500">
-                                <QrCode className="w-5 h-5 text-white" />
-                            </div>
-                            <span className="text-lg font-bold text-slate-900 dark:text-white">{SITE_NAME}</span>
-                        </div>
+            <nav className="fixed inset-x-0 top-0 z-50 border-b border-slate-950/10 bg-[#fffaf2]/82 backdrop-blur-2xl">
+                <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+                    <Link href="/" className="flex items-center gap-3" aria-label={`${SITE_NAME} ana sayfa`}>
+                        <BrandLogo className="h-10 w-10 rounded-2xl shadow-lg shadow-orange-500/15" priority />
+                        <span className="text-lg font-black tracking-normal">{SITE_NAME}</span>
+                    </Link>
 
-                        <div className="hidden md:flex items-center gap-8">
-                            <a href="#features" className="text-[14px] text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Özellikler</a>
-                            <a href="#pricing" className="text-[14px] text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Planlar</a>
-                            <a href="#flow" className="text-[14px] text-slate-600 dark:text-white/60 hover:text-slate-900 dark:hover:text-white transition-colors">Nasıl Çalışır</a>
-                        </div>
+                    <div className="hidden items-center gap-7 md:flex">
+                        <a className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950" href="#urun">
+                            Ürün
+                        </a>
+                        <a className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950" href="#akış">
+                            Akış
+                        </a>
+                        <a className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950" href="#planlar">
+                            Planlar
+                        </a>
+                        <a className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-950" href="#sss">
+                            SSS
+                        </a>
+                    </div>
 
-                        <div className="flex items-center gap-3">
-                            <Link
-                                href="/auth/login"
-                                className="hidden sm:block text-[14px] font-medium text-slate-700 dark:text-white/70 hover:text-slate-900 dark:hover:text-white transition-colors"
-                            >
-                                Giriş Yap
-                            </Link>
-                            <Link
-                                href="/auth/register"
-                                className="px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[14px] font-medium hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/25"
-                            >
-                                Ücretsiz Başla
-                            </Link>
-                        </div>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            href="/auth/login"
+                            className="hidden rounded-full px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-white/70 hover:text-slate-950 sm:inline-flex"
+                        >
+                            Giriş
+                        </Link>
+                        <Link
+                            href="/auth/register"
+                            className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-sm font-bold text-white shadow-xl shadow-slate-950/15 transition-transform hover:-translate-y-0.5"
+                        >
+                            Kayıt ol
+                            <ArrowRight className="h-4 w-4" />
+                        </Link>
                     </div>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="pt-32 pb-16 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center max-w-5xl mx-auto">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 text-[13px] font-medium mb-6 shadow-sm">
-                            <Sparkles className="w-4 h-4" />
-                            Yeni nesil dijital menü — {SITE_NAME}
+            <section className="relative px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
+                <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
+                    <div className="landing-reveal">
+                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/70 px-3 py-2 text-sm font-bold text-orange-700 shadow-sm">
+                            <Sparkles className="h-4 w-4" />
+                            Restoranlar için canlı QR menü sistemi
                         </div>
-
-                        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white leading-tight mb-6 tracking-tight">
-                            Restoran menünüzü
-                            <span className="bg-gradient-to-r from-orange-500 via-amber-500 to-yellow-500 bg-clip-text text-transparent"> güçlü bir dijital deneyime </span>
-                            dönüştürün
+                        <h1 className="max-w-4xl text-5xl font-black leading-[0.98] tracking-normal text-slate-950 sm:text-6xl lg:text-7xl">
+                            Menünüz artık sadece okunmaz, satışa çalışır.
                         </h1>
-
-                        <p className="text-lg sm:text-xl text-slate-600 dark:text-white/50 mb-8 max-w-3xl mx-auto">
-                            QR kod, canlı menü linki, sürükle-bırak kategori yönetimi ve tek tık PNG indirme ile müşterinize modern bir sipariş öncesi deneyim sunun.
+                        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600 sm:text-xl">
+                            {SITE_NAME}; restoranınız için QR kod, mobil menü, ürün fotoğrafları, kategori yönetimi ve görüntülenme takibini tek, sade ve hızlı bir panelde toplar.
                         </p>
-
-                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <Link
                                 href="/auth/register"
-                                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[15px] font-medium hover:opacity-90 transition-opacity shadow-lg shadow-orange-500/25"
+                                className="inline-flex items-center justify-center gap-2 rounded-full bg-orange-600 px-6 py-4 text-sm font-black text-white shadow-2xl shadow-orange-600/25 transition-transform hover:-translate-y-0.5"
                             >
-                                Ücretsiz Başla
-                                <ArrowRight className="w-4 h-4" />
+                                Menümü ücretsiz oluştur
+                                <ArrowRight className="h-4 w-4" />
                             </Link>
                             <a
-                                href="#features"
-                                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-white text-[15px] font-medium hover:bg-slate-50 dark:hover:bg-white/10 transition-colors"
+                                href="#urun"
+                                className="inline-flex items-center justify-center gap-2 rounded-full border border-slate-950/10 bg-white/75 px-6 py-4 text-sm font-black text-slate-950 shadow-sm transition-colors hover:bg-white"
                             >
-                                <PlayCircle className="w-4 h-4" />
-                                Ürünü Keşfet
+                                Sistemi gör
+                                <MousePointer2 className="h-4 w-4" />
                             </a>
+                        </div>
+                        <div className="mt-8 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
+                            {metrics.map((metric) => (
+                                <div key={metric.label} className="rounded-3xl border border-slate-950/10 bg-white/65 p-4 shadow-sm backdrop-blur">
+                                    <p className="text-2xl font-black text-slate-950">{metric.value}</p>
+                                    <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">{metric.label}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Visual Showcase */}
-                    <div className="mt-14 grid lg:grid-cols-2 gap-6 items-stretch">
-                        <div className="p-6 rounded-3xl bg-gradient-to-br from-[#ff9a1f] to-[#ff7a00] text-white shadow-xl">
-                            <p className="text-sm font-medium text-white/90 mb-3">Neden {SITE_NAME}?</p>
-                            <div className="rounded-2xl border border-white/20 p-5 bg-white/10 backdrop-blur">
-                                <h3 className="text-xl font-bold text-white leading-snug">
-                                    Menü yönetiminde hız, sadelik ve satış odaklı deneyim
-                                </h3>
-                                <p className="mt-3 text-sm text-white/85">
-                                    Eski menü baskı süreçlerini kaldırın. Ürün/fiyat güncellemelerinizi anında yayınlayın ve müşterinize modern bir ilk temas deneyimi sunun.
-                                </p>
-                                <div className="mt-5 grid sm:grid-cols-2 gap-3">
-                                    {[
-                                        "Baskı maliyetini azaltır",
-                                        "Anlık fiyat güncelleme",
-                                        "Müşteri deneyimini güçlendirir",
-                                        "Tek panelden yönetim",
-                                    ].map((item) => (
-                                        <div key={item} className="rounded-xl px-1 py-1 text-sm font-medium text-white">
-                                            {item}
+                    <div className="landing-float relative min-h-[590px] lg:min-h-[650px]">
+                        <div className="absolute left-0 top-24 w-[88%] rounded-[2.25rem] border border-slate-950/10 bg-slate-950 p-3 shadow-2xl shadow-slate-950/30 sm:w-[76%] lg:left-4">
+                            <div className="rounded-[1.65rem] bg-[#101827] p-5 text-white">
+                                <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                                    <div>
+                                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-300">Dashboard</p>
+                                        <h2 className="mt-1 text-xl font-black">Luna Bistro</h2>
+                                    </div>
+                                    <span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-black text-emerald-300">Yayında</span>
+                                </div>
+                                <div className="mt-5 grid grid-cols-3 gap-3">
+                                    <div className="rounded-2xl bg-white/8 p-3">
+                                        <Eye className="h-4 w-4 text-orange-300" />
+                                        <p className="mt-3 text-2xl font-black">8.4k</p>
+                                        <p className="text-xs text-white/45">Görüntülenme</p>
+                                    </div>
+                                    <div className="rounded-2xl bg-white/8 p-3">
+                                        <Package className="h-4 w-4 text-teal-300" />
+                                        <p className="mt-3 text-2xl font-black">126</p>
+                                        <p className="text-xs text-white/45">Ürün</p>
+                                    </div>
+                                    <div className="rounded-2xl bg-white/8 p-3">
+                                        <FolderOpen className="h-4 w-4 text-amber-300" />
+                                        <p className="mt-3 text-2xl font-black">14</p>
+                                        <p className="text-xs text-white/45">Kategori</p>
+                                    </div>
+                                </div>
+                                <div className="mt-5 space-y-3">
+                                    {menuItems.map((item, index) => (
+                                        <div key={item.name} className="flex items-center justify-between rounded-2xl bg-white/[0.07] p-3">
+                                            <div className="flex items-center gap-3">
+                                                <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-sm font-black">{index + 1}</span>
+                                                <div>
+                                                    <p className="text-sm font-black">{item.name}</p>
+                                                    <p className="text-xs text-white/45">{item.views} görüntülenme</p>
+                                                </div>
+                                            </div>
+                                            <p className="text-sm font-black text-orange-200">{item.price}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <Link
-                                    href="/auth/register"
-                                    className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white text-orange-600 px-4 py-2 text-sm font-semibold"
-                                >
-                                    Hemen Başla
-                                    <ArrowRight className="w-4 h-4" />
-                                </Link>
+                                <div className="mt-5 rounded-2xl bg-orange-500 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <p className="text-sm font-black">Menü linki</p>
+                                            <p className="text-xs text-white/75">/menu/luna-bistro</p>
+                                        </div>
+                                        <ScanLine className="h-6 w-6" />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="p-6 rounded-3xl bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-xl">
-                            <p className="text-sm font-medium text-white/90 mb-3">QR Dağıtım Paneli</p>
-                            <div className="rounded-2xl bg-white/10 border border-white/20 p-5 backdrop-blur">
-                                <div className="flex items-center justify-between mb-5">
-                                    <p className="font-semibold">Masa Kartları İçin Hazır</p>
-                                    <ScanLine className="w-5 h-5" />
+
+                        <div className="absolute bottom-0 right-0 w-[56%] min-w-[230px] rounded-[2.5rem] border-[10px] border-slate-950 bg-white shadow-2xl shadow-slate-950/25 sm:w-[42%] lg:right-6">
+                            <div className="rounded-[1.55rem] bg-white p-4">
+                                <div className="mx-auto mb-4 h-1.5 w-16 rounded-full bg-slate-200" />
+                                <div className="rounded-3xl bg-orange-50 p-4">
+                                    <p className="text-xs font-black uppercase tracking-[0.14em] text-orange-600">Luna Bistro</p>
+                                    <h3 className="mt-2 text-2xl font-black leading-tight">Bugünün menüsü</h3>
                                 </div>
-                                <ul className="space-y-2 text-sm text-white/90">
-                                    <li className="flex items-center gap-2"><Check className="w-4 h-4" /> Tek tıkla QR oluşturma</li>
-                                    <li className="flex items-center gap-2"><Check className="w-4 h-4" /> PNG indirme</li>
-                                    <li className="flex items-center gap-2"><Check className="w-4 h-4" /> Link kopyalama</li>
-                                    <li className="flex items-center gap-2"><Check className="w-4 h-4" /> Realtime güncellenen menü</li>
-                                </ul>
-                                <Link href="/auth/register" className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white text-orange-600 px-4 py-2 text-sm font-semibold">
-                                    Şimdi Etkinleştir
-                                    <ArrowRight className="w-4 h-4" />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Stats */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-12 max-w-4xl mx-auto">
-                        {[
-                            { value: "1 dk", label: "Kurulum Süresi" },
-                            { value: "%100", label: "Mobil Uyum" },
-                            { value: "PNG", label: "QR İndirme" },
-                            { value: "7/24", label: "Canlı Menü" },
-                        ].map((stat, index) => (
-                            <div key={index} className="text-center p-6 rounded-2xl bg-white/80 dark:bg-white/[0.02] backdrop-blur border border-slate-200 dark:border-white/5 hover:scale-[1.02] transition-transform">
-                                <div className="text-3xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent mb-1">
-                                    {stat.value}
-                                </div>
-                                <div className="text-[13px] text-slate-500 dark:text-white/40">{stat.label}</div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Features Section */}
-            <section id="features" className="py-20 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            Ürünün kalbinde hız ve dönüşüm var
-                        </h2>
-                        <p className="text-lg text-slate-600 dark:text-white/50 max-w-2xl mx-auto">
-                            Menünüzü sadece yönetmek için değil, satış etkisini artırmak için tasarlanmış bir altyapı.
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {features.map((feature, index) => (
-                            <div
-                                key={index}
-                                className="group p-6 rounded-2xl bg-white/80 dark:bg-white/[0.02] backdrop-blur border border-slate-200 dark:border-white/5 hover:border-orange-200 dark:hover:border-orange-500/20 hover:shadow-xl hover:-translate-y-1 transition-all"
-                            >
-                                <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 text-orange-500 dark:text-orange-400 mb-4 group-hover:from-orange-500/20 group-hover:to-amber-500/20 transition-colors">
-                                    <feature.icon className="w-6 h-6" />
-                                </div>
-                                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{feature.title}</h3>
-                                <p className="text-[14px] text-slate-600 dark:text-white/50">{feature.description}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Flow Section */}
-            <section id="flow" className="py-20 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            3 adımda canlıya alın
-                        </h2>
-                    </div>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {[
-                            { step: "01", title: "Restoranı oluştur", text: "Ad, açıklama ve slug ile menünüzün herkese açık linkini oluşturun." },
-                            { step: "02", title: "Kategori ve ürünleri ekle", text: "Kategorileri sürükleyerek sıralayın, ürünleri anında yayına alın." },
-                            { step: "03", title: "QR indir ve masalara koy", text: "Dashboard’dan PNG QR indirip bastırın, müşteri anında menüye ulaşsın." },
-                        ].map((item) => (
-                            <div key={item.step} className="p-6 rounded-2xl bg-white dark:bg-white/[0.02] border border-slate-200 dark:border-white/5">
-                                <span className="text-sm font-semibold text-orange-500">{item.step}</span>
-                                <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">{item.title}</h3>
-                                <p className="mt-2 text-[14px] text-slate-600 dark:text-white/50">{item.text}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* Pricing Section */}
-            <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8 bg-white dark:bg-white/[0.01]">
-                <div className="max-w-7xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            Basit plan yapısı
-                        </h2>
-                        <p className="text-lg text-slate-600 dark:text-white/50 max-w-2xl mx-auto">
-                            Ücretsiz planda limitli, Premium planda sınırsız kullanım
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                        {[
-                            {
-                                name: "Ücretsiz Beta",
-                                price: "0 TL",
-                                description: "Hızlıca başlamak isteyenler için",
-                                features: ["1 Restoran", "En fazla 15 kategori", "En fazla 100 ürün", "QR Kod + PNG indirme", "Realtime menü güncelleme"],
-                                popular: true,
-                                ctaLabel: "Hemen Başla",
-                                ctaType: "register"
-                            },
-                            {
-                                name: "Pro",
-                                price: "₺99",
-                                period: "/ay",
-                                description: "WhatsApp ile aktivasyon",
-                                features: ["Sınırsız kategori", "Sınırsız ürün", "Sınırsız yönetim esnekliği", "Öncelikli destek", "Manuel Premium açılış"],
-                                popular: false,
-                                ctaLabel: "WhatsApp'tan Ulaş",
-                                ctaType: "whatsapp"
-                            },
-                        ].map((plan, index) => (
-                            <div
-                                key={index}
-                                className={`relative p-6 rounded-2xl border transition-all ${plan.popular
-                                        ? "bg-gradient-to-b from-orange-50 to-amber-50 dark:from-orange-500/10 dark:to-amber-500/5 border-orange-200 dark:border-orange-500/30 shadow-xl"
-                                        : "bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10"
-                                    }`}
-                            >
-                                {plan.popular && (
-                                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-gradient-to-r from-orange-500 to-amber-500 text-white text-[11px] font-medium">
-                                        En Popüler
-                                    </div>
-                                )}
-                                <div className="text-center mb-6">
-                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{plan.name}</h3>
-                                    <div className="flex items-baseline justify-center gap-1">
-                                        <span className="text-4xl font-bold text-slate-900 dark:text-white">{plan.price}</span>
-                                        {plan.period && <span className="text-slate-500 dark:text-white/40">{plan.period}</span>}
-                                    </div>
-                                    <p className="text-[13px] text-slate-500 dark:text-white/40 mt-2">{plan.description}</p>
-                                </div>
-                                <ul className="space-y-3 mb-6">
-                                    {plan.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-[14px] text-slate-700 dark:text-white/70">
-                                            <Check className="w-4 h-4 text-orange-500" />
-                                            {feature}
-                                        </li>
+                                <div className="mt-4 flex gap-2 overflow-hidden">
+                                    {["Kahvaltı", "Ana yemek", "Tatlı"].map((item, index) => (
+                                        <span key={item} className={`shrink-0 rounded-full px-3 py-2 text-xs font-black ${index === 0 ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-600"}`}>
+                                            {item}
+                                        </span>
                                     ))}
-                                </ul>
-                                {plan.ctaType === "whatsapp" ? (
-                                    <a
-                                        href={whatsappPremiumUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className={`w-full py-3 rounded-xl text-[14px] font-medium transition-all text-center block ${plan.popular
-                                            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/25"
-                                            : "bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10"
-                                            }`}
-                                    >
-                                        {plan.ctaLabel}
-                                    </a>
-                                ) : (
-                                    <Link
-                                        href="/auth/register"
-                                        className={`w-full py-3 rounded-xl text-[14px] font-medium transition-all text-center block ${plan.popular
-                                            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:opacity-90 shadow-lg shadow-orange-500/25"
-                                            : "bg-slate-100 dark:bg-white/5 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10"
-                                            }`}
-                                    >
-                                        {plan.ctaLabel}
-                                    </Link>
-                                )}
+                                </div>
+                                <div className="mt-4 space-y-3">
+                                    {["Avokadolu tost", "Soğuk latte", "San Sebastian"].map((item) => (
+                                        <div key={item} className="flex items-center gap-3 rounded-2xl border border-slate-100 p-2">
+                                            <span className="h-12 w-12 rounded-2xl bg-gradient-to-br from-orange-200 to-teal-100" />
+                                            <div>
+                                                <p className="text-sm font-black">{item}</p>
+                                                <p className="text-xs text-slate-500">Fotoğraflı ürün</p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="urun" className="border-y border-slate-950/10 bg-white px-4 py-20 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
+                    <div className="max-w-3xl">
+                        <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-600">Ürün gücü</p>
+                        <h2 className="mt-3 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                            Menü operasyonunu ağırlaştırmadan profesyonelleştirir.
+                        </h2>
+                        <p className="mt-5 text-lg leading-8 text-slate-600">
+                            Baskı, dosya paylaşımı, eski fiyat listesi ve dağınık ürün takibi yerine restoran sahibinin her gün kullanabileceği net bir sistem.
+                        </p>
+                    </div>
+
+                    <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                        {features.map((feature) => (
+                            <article key={feature.title} className="group rounded-[2rem] border border-slate-950/10 bg-[#fffaf2] p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-slate-950/8">
+                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-slate-950 text-white transition-colors group-hover:bg-orange-600">
+                                    <feature.icon className="h-5 w-5" />
+                                </div>
+                                <h3 className="mt-6 text-xl font-black">{feature.title}</h3>
+                                <p className="mt-3 text-sm leading-7 text-slate-600">{feature.description}</p>
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="bg-slate-950 px-4 py-20 text-white sm:px-6 lg:px-8">
+                <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+                    <div>
+                        <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-300">Neden çıkarmaz?</p>
+                        <h2 className="mt-3 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                            Çünkü sayfa sadece vaat etmiyor, restoranın gününü çözüyor.
+                        </h2>
+                        <p className="mt-5 text-lg leading-8 text-white/60">
+                            Müşteri QR okuttuğunda modern bir menü görür. İşletme sahibi panelde saniyeler içinde değişiklik yapar. İkisi de aynı canlı veriye bakar.
+                        </p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {comparisons.map((item, index) => (
+                            <div key={item} className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
+                                <span className="text-4xl font-black text-orange-300">0{index + 1}</span>
+                                <p className="mt-5 text-lg font-black">{item}</p>
+                                <div className="mt-5 h-2 rounded-full bg-white/10">
+                                    <div className="h-2 rounded-full bg-orange-400" style={{ width: `${72 + index * 7}%` }} />
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="py-20 px-4 sm:px-6 lg:px-8">
-                <div className="max-w-4xl mx-auto text-center">
-                    <div className="p-10 rounded-3xl bg-gradient-to-r from-orange-500 to-amber-500 text-white">
-                        <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                            Menünüzü bugün dijitale taşıyın
+            <section id="akış" className="px-4 py-20 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
+                    <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+                        <div className="max-w-3xl">
+                            <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-600">Kurulum akışı</p>
+                            <h2 className="mt-3 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                                Dakikalar içinde yayına alın.
+                            </h2>
+                        </div>
+                        <Link href="/auth/register" className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-black text-white">
+                            İlk adımı at
+                            <ChevronRight className="h-4 w-4" />
+                        </Link>
+                    </div>
+                    <div className="mt-12 grid gap-4 md:grid-cols-3">
+                        {flow.map((item) => (
+                            <article key={item.step} className="relative overflow-hidden rounded-[2rem] border border-slate-950/10 bg-white p-7 shadow-sm">
+                                <div className="absolute -right-8 -top-8 text-[8rem] font-black leading-none text-slate-950/[0.04]">{item.step}</div>
+                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-orange-100 text-orange-600">
+                                    <item.icon className="h-5 w-5" />
+                                </div>
+                                <p className="mt-8 text-sm font-black uppercase tracking-[0.18em] text-slate-400">{item.step}</p>
+                                <h3 className="mt-2 text-2xl font-black">{item.title}</h3>
+                                <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+                            </article>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section id="planlar" className="bg-white px-4 py-20 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl">
+                    <div className="mx-auto max-w-3xl text-center">
+                        <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-600">Planlar</p>
+                        <h2 className="mt-3 text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                            Başlamak kolay, büyümek kontrollü.
                         </h2>
-                        <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-                            Kurulumdan QR indirime kadar tüm akış tek panelde. Teknik bilgi gerekmez.
-                        </p>
-                        <Link
-                            href="/auth/register"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-orange-600 text-[15px] font-medium hover:bg-white/90 transition-colors"
-                        >
-                            Ücretsiz Hesap Oluştur
-                            <ArrowRight className="w-4 h-4" />
+                    </div>
+                    <div className="mx-auto mt-12 grid max-w-5xl gap-5 md:grid-cols-2">
+                        <article className="rounded-[2rem] border border-slate-950/10 bg-[#fffaf2] p-7 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-2xl font-black">Ücretsiz Beta</h3>
+                                <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-black text-orange-700">Popüler</span>
+                            </div>
+                            <p className="mt-4 text-5xl font-black">0 TL</p>
+                            <p className="mt-3 text-sm leading-7 text-slate-600">Menüyü dijitale taşımak isteyen restoranlar için hızlı başlangıç.</p>
+                            <ul className="mt-7 space-y-3">
+                                {["1 restoran", "15 kategoriye kadar", "100 ürüne kadar", "QR kod ve PNG indirme", "Canlı menü linki"].map((item) => (
+                                    <li key={item} className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                                        <Check className="h-4 w-4 text-orange-600" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                            <Link href="/auth/register" className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-orange-600 px-5 py-4 text-sm font-black text-white">
+                                Ücretsiz hesap oluştur
+                                <ArrowRight className="h-4 w-4" />
+                            </Link>
+                        </article>
+
+                        <article className="rounded-[2rem] border border-slate-950 bg-slate-950 p-7 text-white shadow-2xl shadow-slate-950/20">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-2xl font-black">Premium</h3>
+                                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-black text-orange-200">WhatsApp aktivasyon</span>
+                            </div>
+                            <p className="mt-4 text-5xl font-black leading-tight">Bize ulaşın</p>
+                            <p className="mt-3 text-sm leading-7 text-white/60">Daha geniş menü hacmi ve öncelikli destek isteyen işletmeler için.</p>
+                            <ul className="mt-7 space-y-3">
+                                {["Sınırsız kategori", "Sınırsız ürün", "Öncelikli destek", "Esnek menü büyütme", "Manuel Premium açılış"].map((item) => (
+                                    <li key={item} className="flex items-center gap-3 text-sm font-bold text-white/78">
+                                        <Check className="h-4 w-4 text-orange-300" />
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                            <a href={whatsappPremiumUrl} target="_blank" rel="noreferrer" className="mt-8 inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-5 py-4 text-sm font-black text-slate-950">
+                                Bize ulaşın
+                                <ArrowRight className="h-4 w-4" />
+                            </a>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section className="px-4 py-20 sm:px-6 lg:px-8">
+                <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-orange-600 px-6 py-12 text-white shadow-2xl shadow-orange-600/20 sm:px-10 lg:px-14">
+                    <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
+                        <div>
+                            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-orange-100">
+                                <Zap className="h-4 w-4" />
+                                Bugün yayına hazır
+                            </div>
+                            <h2 className="mt-4 max-w-3xl text-4xl font-black leading-tight tracking-normal sm:text-5xl">
+                                Menü baskısını beklemeyin. QR menünüzü şimdi açın.
+                            </h2>
+                            <p className="mt-4 max-w-2xl text-lg leading-8 text-white/78">
+                                Restoranınızı oluşturun, ürünlerinizi ekleyin, QR kodu indirin. Müşterinizin ilk teması daha hızlı, daha temiz ve daha iştah açıcı olsun.
+                            </p>
+                        </div>
+                        <Link href="/auth/register" className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-black text-orange-700">
+                            Hemen başla
+                            <ArrowRight className="h-4 w-4" />
                         </Link>
                     </div>
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-slate-200 dark:border-white/5">
-                <div className="max-w-7xl mx-auto">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-amber-500">
-                                <QrCode className="w-4 h-4 text-white" />
+            <section id="sss" className="bg-slate-950 px-4 py-16 text-white sm:px-6 lg:px-8">
+                <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.7fr_1fr]">
+                    <div>
+                        <p className="text-sm font-black uppercase tracking-[0.18em] text-orange-300">SSS</p>
+                        <h2 className="mt-3 text-4xl font-black leading-tight tracking-normal">Aklına takılanlar.</h2>
+                    </div>
+                    <div className="grid gap-4">
+                        {[
+                            ["QR kodum değişir mi?", "Menü linkiniz kalıcıdır. Ürün, fiyat ve kategori güncellense de aynı QR kod müşteriyi güncel menüye götürür."],
+                            ["Teknik bilgi gerekir mi?", "Hayır. Panel ürün ekleme, kategori sıralama ve QR indirme akışını sade tutar."],
+                            ["Müşteri uygulama indirir mi?", "Hayır. QR kod telefon kamerasıyla açılır ve public menü tarayıcıda çalışır."],
+                        ].map(([question, answer]) => (
+                            <div key={question} className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
+                                <h3 className="font-black">{question}</h3>
+                                <p className="mt-2 text-sm leading-7 text-white/60">{answer}</p>
                             </div>
-                            <span className="text-[15px] font-semibold text-slate-900 dark:text-white">{SITE_NAME}</span>
-                        </div>
-                        <div className="flex items-center gap-6 text-[13px] text-slate-500 dark:text-white/40">
-                            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Gizlilik</a>
-                            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Kullanım Şartları</a>
-                            <a href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">İletişim</a>
-                        </div>
-                        <p className="text-[13px] text-slate-400 dark:text-white/30">
-                            © 2026 {SITE_NAME}. Tüm hakları saklıdır.
-                        </p>
+                        ))}
                     </div>
                 </div>
+            </section>
+
+            <footer className="border-t border-slate-950/10 bg-[#fffaf2] px-4 py-10 sm:px-6 lg:px-8">
+                <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                    <Link href="/" className="flex items-center gap-3">
+                        <BrandLogo className="h-10 w-10 rounded-2xl" />
+                        <span className="text-lg font-black">{SITE_NAME}</span>
+                    </Link>
+                    <div className="flex flex-wrap items-center gap-5 text-sm font-bold text-slate-600">
+                        <Link href="/auth/login" className="hover:text-slate-950">Giriş</Link>
+                        <Link href="/auth/register" className="hover:text-slate-950">Kayıt ol</Link>
+                        <a href={whatsappPremiumUrl} target="_blank" rel="noreferrer" className="hover:text-slate-950">İletişim</a>
+                    </div>
+                    <p className="text-sm font-semibold text-slate-500">© 2026 {SITE_NAME}. Tüm hakları saklıdır.</p>
+                </div>
             </footer>
-        </div>
+        </main>
     );
 }

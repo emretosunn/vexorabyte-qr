@@ -44,27 +44,6 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // Auth routes - redirect to dashboard if already authenticated
-    const authRoutes = ['/auth/login', '/auth/register'];
-    const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
-
-    if (isAuthRoute && user) {
-        // Check if user has a restaurant
-        const { data: restaurant } = await supabase
-            .from('restaurants')
-            .select('id')
-            .eq('owner_id', user.id)
-            .order('created_at', { ascending: true })
-            .limit(1)
-            .maybeSingle();
-
-        if (!restaurant) {
-            // User needs to complete onboarding
-            return NextResponse.redirect(new URL('/onboarding', request.url));
-        }
-        return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-
     // Dashboard routes - check if onboarding is complete
     const dashboardRoutes = ['/dashboard', '/kategoriler', '/urunler', '/ayarlar'];
     const isDashboardRoute = dashboardRoutes.some(route => pathname.startsWith(route));

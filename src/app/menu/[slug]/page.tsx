@@ -1,10 +1,10 @@
-import { notFound } from 'next/navigation';
-import { Metadata } from 'next';
-import { SITE_NAME } from '@/lib/site';
-import { getRestaurantMenuBySlug } from '../../[slug]/actions';
-import { MenuClient } from '../../[slug]/MenuClient';
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { SITE_NAME } from "@/lib/site";
+import { getRestaurantMenuBySlug } from "../../[slug]/actions";
+import { MenuClient } from "../../[slug]/MenuClient";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 interface Props {
     params: Promise<{ slug: string }>;
