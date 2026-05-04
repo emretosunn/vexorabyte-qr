@@ -59,8 +59,8 @@ const features = [
     },
     {
         icon: ShieldCheck,
-        title: "Güvenli Supabase altyapısı",
-        description: "Kimlik doğrulama, sahiplik kontrolleri ve güvenli veri erişimi restoran panelinizi korur.",
+        title: "Güvenli işletme altyapısı",
+        description: "Hesap koruması, yetkili erişim ve güvenli veri yönetimi restoran panelinizi korur.",
     },
 ];
 
@@ -146,10 +146,6 @@ export default function LandingPage() {
             <section className="relative px-4 pb-16 pt-28 sm:px-6 sm:pb-20 sm:pt-32 lg:px-8">
                 <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[0.95fr_1.05fr]">
                     <div className="landing-reveal">
-                        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-orange-200 bg-white/70 px-3 py-2 text-sm font-bold text-orange-700 shadow-sm">
-                            <Sparkles className="h-4 w-4" />
-                            Restoranlar için canlı QR menü sistemi
-                        </div>
                         <h1 className="max-w-4xl text-5xl font-black leading-[0.98] tracking-normal text-slate-950 sm:text-6xl lg:text-7xl">
                             Menünüz artık sadece okunmaz, satışa çalışır.
                         </h1>
@@ -182,7 +178,9 @@ export default function LandingPage() {
                         </div>
                     </div>
 
-                    <div className="landing-float relative min-h-[590px] lg:min-h-[650px]">
+                    <HeroDeviceShowcase />
+
+                    <div className="hidden">
                         <div className="absolute left-0 top-24 w-[88%] rounded-[2.25rem] border border-slate-950/10 bg-slate-950 p-3 shadow-2xl shadow-slate-950/30 sm:w-[76%] lg:left-4">
                             <div className="rounded-[1.65rem] bg-[#101827] p-5 text-white">
                                 <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -460,5 +458,65 @@ export default function LandingPage() {
                 </div>
             </footer>
         </main>
+    );
+}
+
+function HeroDeviceShowcase() {
+    return (
+        <div className="landing-float relative min-h-[560px] sm:min-h-[620px] lg:min-h-[650px]">
+            <div className="absolute bottom-0 right-1 w-[76%] min-w-[260px] max-w-[365px] rounded-[2.4rem] border-[12px] border-slate-950 bg-white shadow-2xl shadow-slate-950/25 sm:right-[8%] sm:w-[52%] lg:right-[12%] lg:max-w-[390px]">
+                <div className="mx-auto mt-4 h-1.5 w-20 rounded-full bg-slate-200" />
+                <div className="p-4">
+                    <div className="flex items-start gap-3">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-orange-500 text-2xl font-black text-white">
+                            M
+                        </div>
+                        <div className="min-w-0">
+                            <p className="inline-flex rounded-full border border-orange-100 bg-white px-3 py-1 text-[10px] font-black text-orange-600 shadow-sm">
+                                Dijital menu
+                            </p>
+                            <h3 className="mt-1 text-2xl font-black tracking-normal text-slate-950">myo</h3>
+                            <p className="truncate text-xs font-semibold text-slate-500">{"Antalya'nin en iyi restorani!"}</p>
+                        </div>
+                    </div>
+
+                    <div className="mt-5 grid grid-cols-2 gap-2">
+                        {["1 urun", "1 kategori", "Telefon", "Adres var"].map((item) => (
+                            <div key={item} className="rounded-full border border-slate-200 bg-white px-3 py-2 text-center text-[11px] font-black text-slate-700 shadow-sm">
+                                {item}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-5 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-bold text-slate-400 shadow-sm">
+                        Menude urun veya aciklama ara...
+                    </div>
+
+                    <div className="-mx-4 mt-6 border-y border-slate-200 bg-slate-50 px-4 py-4">
+                        <span className="rounded-2xl bg-orange-500 px-4 py-3 text-sm font-black text-white shadow-lg shadow-orange-500/20">
+                            Ana Yemek 1
+                        </span>
+                    </div>
+
+                    <div className="mt-5">
+                        <h4 className="text-2xl font-black tracking-normal text-slate-950">Ana Yemek</h4>
+                        <p className="text-xs font-black text-slate-400">1 urun</p>
+                        <div className="mt-4 flex items-center gap-4 rounded-[1.4rem] border border-slate-200 bg-white p-3 shadow-lg shadow-slate-950/10">
+                            <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-orange-100 to-emerald-100" />
+                            <div className="min-w-0 flex-1">
+                                <p className="truncate text-base font-black text-slate-950">Karisik Pizza</p>
+                                <p className="mt-1 truncate text-xs font-semibold text-slate-500">Testtselll</p>
+                                <p className="mt-2 text-sm font-black text-orange-600">₺280,00</p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-slate-300" />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-[10px] font-black">
+                    <span className="text-slate-400">myo</span>
+                    <span className="text-slate-400">Powered by <span className="text-orange-600">vexorabyte</span></span>
+                </div>
+            </div>
+        </div>
     );
 }
